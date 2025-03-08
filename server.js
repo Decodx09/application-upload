@@ -7,13 +7,13 @@ const port = 3000;
 
 require('dotenv').config();
 
-// Database connection
 const db = mysql.createConnection({
-    host: 'your-rds-endpoint',
-    user: 'your-username',
-    password: 'your-password',
-    database: 'shivansh'
+    host: process.env.DB_HOST, 
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
+
 
 db.connect(err => {
     if (err) {
@@ -23,18 +23,14 @@ db.connect(err => {
     }
 });
 
-// Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
 
-// **Serve static files (HTML, CSS, JS)**
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to serve the form
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Handle form submission
 app.post('/submit', (req, res) => {
     const { first_name } = req.body;
 
@@ -52,7 +48,6 @@ app.post('/submit', (req, res) => {
     });
 });
 
-// Start server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
