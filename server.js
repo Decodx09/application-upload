@@ -7,6 +7,9 @@ const port = 3000;
 
 require('dotenv').config();
 
+const cors = require("cors");
+app.use(cors());
+
 const db = mysql.createConnection({
     host: process.env.DB_HOST, 
     user: process.env.DB_USER,
@@ -23,8 +26,8 @@ db.connect(err => {
     }
 });
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
