@@ -1,33 +1,56 @@
-require("dotenv").config();
-const express = require("express");
-const mysql = require("mysql2");
+const express = require('express');
+const mysql = require('mysql2');
+const path = require('path');
 
 const app = express();
-app.use(express.json());
+const port = 3000;
 
+// Database connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+    host: 'your-rds-endpoint',
+    user: 'your-username',
+    password: 'your-password',
+    database: 'shivansh'
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err);
-  } else {
-    console.log("Connected to MySQL!");
-  }
+db.connect(err => {
+    if (err) {
+        console.error('Database connection failed:', err);
+    } else {
+        console.log('Connected to MySQL!');
+    }
 });
 
-app.post("/add-user", (req, res) => {
-  const { first_name } = req.body;
-  if (!first_name) return res.status(400).send("First name is required!");
+// Middleware to parse form data
+app.use(express.urlencoded({ extended: true }));
 
-  db.query("INSERT INTO users (first_name) VALUES (?)", [first_name], (err) => {
-    if (err) return res.status(500).send(err.message);
-    res.send("User added successfully!");
-  });
+// **Serve static files (HTML, CSS, JS)**
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route to serve the form
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+// Handle form submission
+app.post('/submit', (req, res) => {
+    const { first_name } = req.body;
+
+    if (!first_name) {
+        return res.status(400).send('First name is required');
+    }
+
+    db.query('INSERT INTO users (first_name) VALUES (?)', [first_name], (err, result) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error saving to database');
+        } else {
+            res.send('Name added successfully!');
+        }
+    });
+});
+
+// Start server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
