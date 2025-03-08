@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Your Name</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Enter Your First Name</h2>
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <button onclick="sendName()">Submit</button>
+    </div>
+    
+    <script>
+        function sendName() {
+            const name = document.getElementById("firstName").value;
+            if (!name) {
+                alert("Please enter your name.");
+                return;
+            }
+            
+            fetch("http://54.173.156.128:3000/add-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ first_name: name })
+            })
+            .then(response => response.json())
+            .then(data => alert("Response: " + data.message))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
