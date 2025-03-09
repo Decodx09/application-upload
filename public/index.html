@@ -47,9 +47,12 @@
                 body: JSON.stringify({ first_name: name })
             })
             .then(response => response.json())
-            .then(data => alert("Response: " + data.message))
+            .then(data => {
+                alert(`Response: ${data.message}\nYour IP: ${data.ip}`);
+            })
             .catch(error => console.error("Error:", error));
         }
     </script>
+    
 </body>
 </html>

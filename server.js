@@ -1,14 +1,16 @@
 const express = require('express');
 const mysql = require('mysql2');
 const path = require('path');
+const cors = require("cors");
+require('dotenv').config();
 
 const app = express();
 const port = 3000;
 
-require('dotenv').config();
-
-const cors = require("cors");
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST, 
@@ -16,7 +18,6 @@ const db = mysql.createConnection({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-
 
 db.connect(err => {
     if (err) {
@@ -26,27 +27,25 @@ db.connect(err => {
     }
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.post('/submit', (req, res) => {
     const { first_name } = req.body;
+    const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
     if (!first_name) {
-        return res.status(400).send('First name is required');
+        return res.status(400).json({ error: 'First name is required' });
     }
 
     db.query('INSERT INTO users (first_name) VALUES (?)', [first_name], (err, result) => {
         if (err) {
             console.error(err);
-            res.status(500).send('Error saving to database');
+            return res.status(500).json({ error: 'Error saving to database' });
         } else {
-            res.send('Name added successfully!');
+            console.log(`Received name: ${first_name} from IP: ${clientIp}`);
+            res.json({ message: 'Name added successfully!', ip: clientIp });
         }
     });
 });
