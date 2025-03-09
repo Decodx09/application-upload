@@ -40,14 +40,19 @@
                 alert("Please enter your name.");
                 return;
             }
-            
-            fetch("http://54.160.211.162:3000/submit", {
+    
+            // Dynamically get the current host (IP or domain)
+            const serverUrl = window.location.origin + "/submit";
+    
+            fetch(serverUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ first_name: name })
             })
             .then(response => response.json())
-            .then(data => console.log(data))
+            .then(data => {
+                alert(`Response: ${data.message}\nYour IP: ${data.ip}`);
+            })
             .catch(error => console.error("Error:", error));
         }
     </script>
